@@ -10,6 +10,7 @@ def main():
     recipe = BeautifulSoup(page, 'html.parser')
 
     title, ingredients, steps = getItems(recipe)
+    parsedIngreds = parseIngred(ingredients)
     parsedSteps = parseSteps(steps)
     print(title)
     print(ingredients)
@@ -17,6 +18,10 @@ def main():
 
 def parseSteps(steps):
     print("my steps")
+    return 0
+
+def parseIngred(ingredients):
+    print("my ingredients")
     return 0
 
 # Get HTML elements we need
