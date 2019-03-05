@@ -11,6 +11,7 @@ def main():
     recipe = BeautifulSoup(page, 'html.parser')
 
     title, ingredients, steps = getItems(recipe)
+    healthyRecipe = translateHealthy(ingredients)
     print(title)
     parsedIngreds = parseIngred(ingredients)
     parsedSteps = parseSteps(steps)
@@ -26,8 +27,8 @@ def parseSteps(steps):
                 parsedSteps.append(s)
         else:
             parsedSteps.append(i)
-    for s in parsedSteps:
-        print(s)
+    #for s in parsedSteps:
+        #print(s)
     return parsedSteps
 
 def parseIngred(ingredients):
@@ -43,7 +44,7 @@ def parseIngred(ingredients):
         comma = i.split(', ',2)
         first = comma[0]
         words = first.split()
-        print(words)
+        #print(words)
         for x in range(len(words)):
             if words[x] in descriptors:
                 descriptor.append(words[x])
@@ -96,12 +97,12 @@ def parseIngred(ingredients):
                 myIngred = myIngred + " " + words[w]
             ingreds.append(myIngred)
 
-        print(first)
-        print(quantity[num])
-        print(measurement[num])
-        print(ingreds[num])
-        print(preparation[num])
-        print()
+        #print(first)
+        #print(quantity[num])
+        #print(measurement[num])
+        #print(ingreds[num])
+        #print(preparation[num])
+        #print()
         num = num +1
 
     return 0
@@ -123,6 +124,19 @@ def getItems(recipe):
             if i.text.strip() != '':
                 steps.append(i.text.strip())
     return title, ingredients, steps
+
+def translateHealthy(ingredients):
+    healthyReplacements = {"butter":"Coconut Butter"}
+    translated = []
+    for x in ingredients:
+        y = x.split(" ")
+        for z in y:
+            t = healthyReplacements.get(z.lower(), z.lower())  # replaces if found in thesaurus, else keep as it is
+            translated.append(t)
+        translated.append("\n")
+    newphrase = ' '.join(translated)
+    print(newphrase)
+    #print(newphrase)
 
 if __name__ == "__main__":
     main()
