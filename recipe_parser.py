@@ -1,4 +1,5 @@
 import urllib.request
+from itertools import chain
 # pip3 install BeautifulSoup4
 from bs4 import BeautifulSoup
 #https://medium.freecodecamp.org/how-to-scrape-websites-with-python-and-beautifulsoup-5946935d93fe
@@ -11,13 +12,15 @@ def main():
 
     title, ingredients, steps = getItems(recipe)
     parsedSteps = parseSteps(steps)
-    print(title)
-    print(ingredients)
-    print(steps)
+    #print(title)
+    #print(ingredients)
+    print(parsedSteps)
 
 def parseSteps(steps):
-    print("my steps")
-    return 0
+    parsedSteps = []
+    for i in steps:
+        parsedSteps.append(i.split("."))
+    return list(chain(parsedSteps))
 
 # Get HTML elements we need
 def getItems(recipe):
