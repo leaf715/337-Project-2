@@ -97,12 +97,12 @@ def parseIngred(ingredients):
                 myIngred = myIngred + " " + words[w]
             ingreds.append(myIngred)
 
-        #print(first)
-        #print(quantity[num])
-        #print(measurement[num])
-        #print(ingreds[num])
-        #print(preparation[num])
-        #print()
+        print(first)
+        print(quantity[num])
+        print(measurement[num])
+        print(ingreds[num])
+        print(preparation[num])
+        print()
         num = num +1
 
     return 0
@@ -126,7 +126,7 @@ def getItems(recipe):
     return title, ingredients, steps
 
 def translateHealthy(ingredients):
-    healthyReplacements = {"butter":"Coconut Butter"}
+    healthyReplacements = {"butter":"Coconut Butter", "honey":"Maple Syrup","eggs":"Bananas","milk":"Soy Milk", "beef":"tofu"}
     translated = []
     for x in ingredients:
         y = x.split(" ")
@@ -135,8 +135,12 @@ def translateHealthy(ingredients):
             translated.append(t)
         translated.append("\n")
     newphrase = ' '.join(translated)
+
+    # for more specific cases do find and replace
+    replacements = ["pork loin", "chicken breast", "boneless chicken",]
+    for i in replacements:
+        newphrase = newphrase.replace(i, "tofu")
     print(newphrase)
-    #print(newphrase)
 
 if __name__ == "__main__":
     main()
