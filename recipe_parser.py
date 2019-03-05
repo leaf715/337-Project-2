@@ -11,13 +11,13 @@ def main():
     recipe = BeautifulSoup(page, 'html.parser')
 
     title, ingredients, steps = getItems(recipe)
-    healthyRecipe = translateHealthy(ingredients)
     print(title)
     parsedIngreds = parseIngred(ingredients)
     parsedIngreds = parseIngred(ingredients)
     print("ingredient list:")
     for i in range(len(parsedIngreds[0])):
         print("Q: " + parsedIngreds[0][i] +" M: " + parsedIngreds[1][i] +" D: " + parsedIngreds[2][i] +" I: " + parsedIngreds[3][i] +" P: " + parsedIngreds[4][i])
+    vegetarianRecipe = translateVegetarian(parsedIngreds[3])
 
     parsedSteps = parseSteps(steps)
     # print(steps)
@@ -126,7 +126,7 @@ def getItems(recipe):
                 steps.append(i.text.strip())
     return title, ingredients, steps
 
-def translateHealthy(ingredients):
+def translateVegetarian(ingredients):
     healthyReplacements = {"butter":"Coconut Butter", "honey":"Maple Syrup","eggs":"Bananas","milk":"Soy Milk", "beef":"tofu"}
     translated = []
     for x in ingredients:
