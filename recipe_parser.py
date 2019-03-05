@@ -11,16 +11,100 @@ def main():
     recipe = BeautifulSoup(page, 'html.parser')
 
     title, ingredients, steps = getItems(recipe)
+    print(title)
+    parsedIngreds = parseIngred(ingredients)
     parsedSteps = parseSteps(steps)
-    #print(title)
-    #print(ingredients)
-    print(parsedSteps)
+    # print(ingredients)
+    # print(steps)
 
 def parseSteps(steps):
     parsedSteps = []
     for i in steps:
-        parsedSteps.append(i.split("."))
-    return list(chain(parsedSteps))
+        sentences = i.split('. ')
+        if type(sentences) is list:
+            for s in sentences:
+                parsedSteps.append(s)
+        else:
+            parsedSteps.append(i)
+    for s in parsedSteps:
+        print(s)
+    return parsedSteps
+
+def parseIngred(ingredients):
+    descriptors = ['all-purpose','fresh','dried','extra-virgin','ground', 'boneless']
+    ingreds = []
+    quantity = []
+    measurement = []
+    descriptor = []
+    preparation = []
+    num = 0
+
+    for i in ingredients:
+        comma = i.split(', ',2)
+        first = comma[0]
+        words = first.split()
+        print(words)
+        for x in range(len(words)):
+            if words[x] in descriptors:
+                descriptor.append(words[x])
+                del words[x]
+                break
+
+
+        if len(comma) > 1:
+            preparation.append(comma[1])
+        else:
+            #check if word ends in 'ed'
+            #if so, make prep that and remove from array
+            preparation.append('no prep')
+            for x in range(len(words)):
+                if words[x].endswith('ed'):
+                    preparation[num]=words[x]
+                    del words[x]
+                    break
+
+
+        #if first word has number in first digit
+        if words[0][0].isdigit():
+            quantity.append(words[0])
+            #if only 2 word probably just number and ingredient
+            if(len(words) < 3):
+                ingreds.append(words[1])
+                measurement.append('')
+            else:
+                mynum = 1
+                if('(' in words[1] and ')' not in words[1]):
+                    mymeas = ''
+                    while(')' not in words[mynum]):
+                        mymeas = mymeas + words[mynum] + " "
+                        mynum = mynum + 1
+                    mymeas = mymeas + words[mynum]
+                    measurement.append(mymeas)
+                else:
+                    measurement.append(words[1])
+
+
+                myIngred = words[mynum+1]
+                for w in range(mynum+2, len(words)):
+                    myIngred = myIngred + " " + words[w]
+                ingreds.append(myIngred)
+        else:
+            quantity.append("to taste")
+            measurement.append('')
+            myIngred = words[0]
+            for w in range(1, len(words)):
+                myIngred = myIngred + " " + words[w]
+            ingreds.append(myIngred)
+
+        print(first)
+        print(quantity[num])
+        print(measurement[num])
+        print(ingreds[num])
+        print(preparation[num])
+        print()
+        num = num +1
+
+    return 0
 
 # Get HTML elements we need
 def getItems(recipe):
