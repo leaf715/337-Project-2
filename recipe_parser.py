@@ -10,15 +10,24 @@ def main():
     recipe = BeautifulSoup(page, 'html.parser')
 
     title, ingredients, steps = getItems(recipe)
+    print(title)
     parsedIngreds = parseIngred(ingredients)
     parsedSteps = parseSteps(steps)
-    print(title)
-    print(ingredients)
-    print(steps)
+    # print(ingredients)
+    # print(steps)
 
 def parseSteps(steps):
-    print("my steps")
-    return 0
+    parsedSteps = []
+    for i in steps:
+        sentences = i.split('. ')
+        if type(sentences) is list:
+            for s in sentences:
+                parsedSteps.append(s)
+        else:
+            parsedSteps.append(i)
+    for s in parsedSteps:
+        print(s)
+    return parsedSteps
 
 def parseIngred(ingredients):
     descriptors = ['all-purpose','fresh','dried','extra-virgin','ground', 'boneless']
