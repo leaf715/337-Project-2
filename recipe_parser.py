@@ -137,7 +137,7 @@ def translateHealthy(ingredients):
     newphrase = ' '.join(translated)
 
     # for more specific cases do find and replace
-    replacements = ["pork loin", "chicken breast", "boneless chicken",]
+    replacements = ["pork loin", "chicken breast", "boneless chicken"]
     for i in replacements:
         newphrase = newphrase.replace(i, "tofu")
     print(newphrase)
