@@ -14,8 +14,12 @@ def main():
     healthyRecipe = translateHealthy(ingredients)
     print(title)
     parsedIngreds = parseIngred(ingredients)
+    parsedIngreds = parseIngred(ingredients)
+    print("ingredient list:")
+    for i in range(len(parsedIngreds[0])):
+        print("Q: " + parsedIngreds[0][i] +" M: " + parsedIngreds[1][i] +" D: " + parsedIngreds[2][i] +" I: " + parsedIngreds[3][i] +" P: " + parsedIngreds[4][i])
+
     parsedSteps = parseSteps(steps)
-    # print(ingredients)
     # print(steps)
 
 def parseSteps(steps):
@@ -32,7 +36,7 @@ def parseSteps(steps):
     return parsedSteps
 
 def parseIngred(ingredients):
-    descriptors = ['all-purpose','fresh','dried','extra-virgin','ground', 'boneless']
+    descriptors = ['all-purpose','fresh','dried','extra-virgin','ground', 'boneless','organic']
     ingreds = []
     quantity = []
     measurement = []
@@ -44,13 +48,16 @@ def parseIngred(ingredients):
         comma = i.split(', ',2)
         first = comma[0]
         words = first.split()
-        #print(words)
+
+        hasD = False
         for x in range(len(words)):
             if words[x] in descriptors:
                 descriptor.append(words[x])
+                hasD = True
                 del words[x]
                 break
-
+        if(not hasD):
+            descriptor.append('')
 
         if len(comma) > 1:
             preparation.append(comma[1])
@@ -97,15 +104,9 @@ def parseIngred(ingredients):
                 myIngred = myIngred + " " + words[w]
             ingreds.append(myIngred)
 
-        print(first)
-        print(quantity[num])
-        print(measurement[num])
-        print(ingreds[num])
-        print(preparation[num])
-        print()
         num = num +1
 
-    return 0
+    return [quantity,measurement,descriptor,ingreds,preparation]
 
 # Get HTML elements we need
 def getItems(recipe):
