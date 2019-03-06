@@ -146,14 +146,23 @@ def translateVegetarian(ingredients):
                 ingredients[x] = t
             if(i in meats):
                 ingredients[x] = "tofu"
-            #t = healthyReplacements.get(z.lower(), z.lower())  # replaces if found in thesaurus, else keep as it is
-            #translated.append(t)
-    #newphrase = ' '.join(translated)
-    # for more specific cases do find and replace
-    #replacements = ["pork loin", "chicken breast", "boneless chicken"]
-    for i in ingredients:
-        #newphrase = newphrase.replace(i, "tofu")
-        print(i)
+    return ingredients
+
+def translateHealthy(ingredients):
+    healthyReplacements = {"butter":"Coconut Oil", "honey":"Maple Syrup","eggs":"Bananas","milk":"Almond Milk","gelatin":"agar agar","rice":"quinoa", "oil":"Coconut Oil", "chips":"Popcorn", "croutons":"Almonds","flour":"Coconut Flower","sugar":"Stevia", "breadcrumbs":"Chia Seeds","iceberg":"Romaine Lettuce","ranch":"Olive Oil and Vinegar Mix","mayo":"Mustard","peanut":"Almond Butter","soda":"Tea","noodles":"Zoodles","pita":"Carrots"}
+    for x in range(len(ingredients)):
+        y = ingredients[x].split(" ")
+        for i in y:
+            if(i in healthyReplacements.keys()):
+                t = healthyReplacements.get(i)
+                ingredients[x] = t
+            #if(i in unhealthy):
+            #    ingredients[x] = "tofu"
+    specificHealthyReplacements = {"sour cream":"Greek Yogurt","table salt":"Himalayan Salt","chocolate chips":"Cocoa Nibs","corn tortilla":"Flour Tortilla"}
+    for x in range(len(ingredients)):
+        if(x in specificHealthyReplacements.keys()):
+            t = specificHealthyReplacements.get(x)
+            ingredients[x] = t
     return ingredients
 
 if __name__ == "__main__":
