@@ -17,7 +17,7 @@ def main():
     print("ingredient list:")
     for i in range(len(parsedIngreds[0])):
         print("Q: " + parsedIngreds[0][i] +" M: " + parsedIngreds[1][i] +" D: " + parsedIngreds[2][i] +" I: " + parsedIngreds[3][i] +" P: " + parsedIngreds[4][i])
-    vegetarianRecipe = translateVegetarian(parsedIngreds[3])
+    parsedIngreds[3] = translateVegetarian(parsedIngreds[3])
 
     parsedSteps = parseSteps(steps)
     # print(steps)
@@ -127,21 +127,26 @@ def getItems(recipe):
     return title, ingredients, steps
 
 def translateVegetarian(ingredients):
-    healthyReplacements = {"butter":"Coconut Butter", "honey":"Maple Syrup","eggs":"Bananas","milk":"Soy Milk", "beef":"tofu"}
+    healthyReplacements = {"butter":"Coconut Butter", "honey":"Maple Syrup","eggs":"Bananas","milk":"Soy Milk","gelatin":"agar agar"}
+    meats = ["beef", "steak", "pork", "salmon", "tuna","halibut","tilapia","chicken","venisen","lamb","duck","sausage","eel","shrimp","lobster","crab","chorizo","scallops","clams","hotdog","pepperoni","goat","liver","caviar","calamari","goose","quail","anchovies","mussels"]
     translated = []
-    for x in ingredients:
-        y = x.split(" ")
-        for z in y:
-            t = healthyReplacements.get(z.lower(), z.lower())  # replaces if found in thesaurus, else keep as it is
-            translated.append(t)
-        translated.append("\n")
-    newphrase = ' '.join(translated)
-
+    for x in range(len(ingredients)):
+        y = ingredients[x].split(" ")
+        for i in y:
+            if(i in healthyReplacements.keys()):
+                t = healthyReplacements.get(i)
+                ingredients[x] = t
+            if(i in meats):
+                ingredients[x] = "tofu"
+            #t = healthyReplacements.get(z.lower(), z.lower())  # replaces if found in thesaurus, else keep as it is
+            #translated.append(t)
+    #newphrase = ' '.join(translated)
     # for more specific cases do find and replace
-    replacements = ["pork loin", "chicken breast", "boneless chicken"]
-    for i in replacements:
-        newphrase = newphrase.replace(i, "tofu")
-    print(newphrase)
+    #replacements = ["pork loin", "chicken breast", "boneless chicken"]
+    for i in ingredients:
+        #newphrase = newphrase.replace(i, "tofu")
+        print(i)
+    return ingredients
 
 if __name__ == "__main__":
     main()
