@@ -20,8 +20,16 @@ def main():
     parsedIngreds[3] = translateVegetarian(parsedIngreds[3])
 
     parsedSteps = parseSteps(steps)
+    parsedTools = parseTools(title,parsedIngreds[4],parsedSteps)
+    primary, otherMethods = parseMethods(title,parsedSteps)
     # print(steps)
 
+def parseTools(title,ingredients,steps):
+    return 0
+
+def parseMethods(title,steps):
+    return 0,1
+    
 def parseSteps(steps):
     parsedSteps = []
     for i in steps:
