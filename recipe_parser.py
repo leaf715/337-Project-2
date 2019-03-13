@@ -21,7 +21,7 @@ def main():
 
     parsedSteps = parseSteps(steps)
     parsedTools = parseTools(title,parsedIngreds[4],parsedSteps)
-    primary, otherMethods = parseMethods(title,parsedSteps)
+    primary, otherMethods = parseMethods(title,parsedSteps,parsedIngreds[4])
     # print(steps)
 
 def parseTools(title,prep,steps):
@@ -34,9 +34,8 @@ def parseMethods(title,steps,prep):
     #Get primary
     primary = ""
     primaryFound = False
-    titleWords = title.lower().split()
-    for i in titleWords:
-        if i in possPrim:
+    for i in possPrim:
+        if i in title.lower():
             primary = i
             primaryFound = True
             break
@@ -44,8 +43,12 @@ def parseMethods(title,steps,prep):
     if not primaryFound:
         for x in steps:
             if "oven" in x:
-                primary = "bake"
-                primaryFound = True
+                if "bake" in steps:
+                    primary = "bake"
+                    primaryFound = True
+                elif "roast" in steps:
+                    primary = "roast"
+                    primaryFound = True
 
     primaryDict = dict()
     if not primaryFound:
@@ -61,7 +64,6 @@ def parseMethods(title,steps,prep):
     for step in steps:
         for possibility in possSec:
             if possibility in step.lower():
-                print(step + " " + possibility)
                 othersDict[possibility] = othersDict.get(possibility, 0) + 1
 
     if(not primaryFound):
@@ -70,10 +72,10 @@ def parseMethods(title,steps,prep):
 
     for p in prep:
         if p != "no prep":
+            for possibility in possSec:
+                if possibility in p.lower():
+                    othersDict[possibility] = othersDict.get(possibility, 0) + 1
 
-
-    print(primary)
-    print(othersDict)
     return primary, othersDict
 
 def parseSteps(steps):
