@@ -24,7 +24,6 @@ def main():
         print("Q: " + parsedIngreds[0][i] +" M: " + parsedIngreds[1][i] +" D: " + parsedIngreds[2][i] +" I: " + parsedIngreds[3][i] +" P: " + parsedIngreds[4][i])
     print("\nSteps:")
     parsedSteps = parseSteps(steps)
-<<<<<<< HEAD
     for i in range(len(parsedSteps)):
         print("{}. {}".format(i+1,parsedSteps[i]))
     primary, otherMethods, tools = parseMethodsandTools(title,parsedIngreds[4],parsedSteps)
@@ -79,26 +78,6 @@ def parseMethodsandTools(title,prep,steps):
         if m in title:
             primary = m
             otherMethods.discard(m)
-=======
-    parsedTools = parseTools(title,parsedIngreds[4],parsedSteps)
-    primary, otherMethods = parseMethods(title,parsedSteps,parsedIngreds[4])
-    # print(steps)
-
-def parseTools(title,prep,steps):
-    possTools = ["","","","","","","","","","","","","","","","","","","","","","","","",""]
-    return 0
-
-def parseMethods(title,steps,prep):
-    possPrim = ["roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","sauté","fried","smoke","grill","steam"]
-    possSec = ["chop","grate","stir","shake","mince","crush","squeeze","dice","mix","sprinkle","melt","stuff","rub","whisk","pour","strain","roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","stir-fry","simmer","sauté","fried","stir-fried","smoke","grill","steam","barbaque"]
-    #Get primary
-    primary = ""
-    primaryFound = False
-    for i in possPrim:
-        if i in title.lower():
-            primary = i
-            primaryFound = True
->>>>>>> f910773a891193f40134936b52e0c80408dc1b8e
             break
     helperTools = set()
     for t in tools:
@@ -116,7 +95,6 @@ def parseMethods(title,steps,prep):
 
     return primary, otherMethods, tools
 
-<<<<<<< HEAD
 # def parseMethods(title,steps,prep):
 #     possPrim = ["roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","sauté","fried","smoke","grill","steam"]
 #     possSec = ["chop","grate","stir","shake","mince","crush","squeeze","dice","mix","sprinkle","melt","stuff","rub","whisk","pour","strain","roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","stir-fry","simmer","sauté","fried","stir-fried","smoke","grill","steam","barbaque"]
@@ -164,45 +142,6 @@ def parseMethods(title,steps,prep):
 #     print(primary)
 #     print(othersDict)
 #     return primary, othersDict
-=======
-    if not primaryFound:
-        for x in steps:
-            if "oven" in x:
-                if "bake" in steps:
-                    primary = "bake"
-                    primaryFound = True
-                elif "roast" in steps:
-                    primary = "roast"
-                    primaryFound = True
-
-    primaryDict = dict()
-    if not primaryFound:
-        for step in steps:
-            for possibility in possPrim:
-                if possibility in step.lower():
-                    primaryDict[possibility] = primaryDict.get(possibility, 0) + 1
-        primaryFound = True
-        primary = get_max_in_dict(primaryDict)
-
-    #Get Others
-    othersDict = dict()
-    for step in steps:
-        for possibility in possSec:
-            if possibility in step.lower():
-                othersDict[possibility] = othersDict.get(possibility, 0) + 1
-
-    if(not primaryFound):
-        primary = get_max_in_dict(othersDict)
-        del othersDict[primary]
-
-    for p in prep:
-        if p != "no prep":
-            for possibility in possSec:
-                if possibility in p.lower():
-                    othersDict[possibility] = othersDict.get(possibility, 0) + 1
-
-    return primary, othersDict
->>>>>>> f910773a891193f40134936b52e0c80408dc1b8e
 
 def parseSteps(steps):
     parsedSteps = []
