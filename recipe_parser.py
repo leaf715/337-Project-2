@@ -166,7 +166,7 @@ def parseIngred(ingredients):
     num = 0
 
     for i in ingredients:
-        comma = i.split(', ',2)
+        comma = i.rsplit(', ',1)
         first = comma[0]
         words = first.split()
 
