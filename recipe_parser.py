@@ -3,6 +3,11 @@ from itertools import chain
 # pip3 install BeautifulSoup4
 from bs4 import BeautifulSoup
 #https://medium.freecodecamp.org/how-to-scrape-websites-with-python-and-beautifulsoup-5946935d93fe
+import json
+import copy
+cfg_file = open("cooking_info.config", "r")
+cfg_lines = cfg_file.read()
+cooking_dict = json.loads(cfg_lines)
 
 def main():
     #Open URL
@@ -11,70 +16,132 @@ def main():
     recipe = BeautifulSoup(page, 'html.parser')
 
     title, ingredients, steps = getItems(recipe)
-    print(title)
+    print(title+"\n")
     parsedIngreds = parseIngred(ingredients)
     parsedIngreds = parseIngred(ingredients)
-    print("ingredient list:")
+    print("Ingredient List (Quantity, Measurement, Description, Ingredient, Preperation):")
     for i in range(len(parsedIngreds[0])):
         print("Q: " + parsedIngreds[0][i] +" M: " + parsedIngreds[1][i] +" D: " + parsedIngreds[2][i] +" I: " + parsedIngreds[3][i] +" P: " + parsedIngreds[4][i])
-    parsedIngreds[3] = translateVegetarian(parsedIngreds[3])
-
+    print("\nSteps:")
     parsedSteps = parseSteps(steps)
-    parsedTools = parseTools(title,parsedIngreds[4],parsedSteps)
-    primary, otherMethods = parseMethods(title,parsedSteps)
-    # print(steps)
+    for i in range(len(parsedSteps)):
+        print("{}. {}".format(i+1,parsedSteps[i]))
+    primary, otherMethods, tools = parseMethodsandTools(title,parsedIngreds[4],parsedSteps)
+    print("\nPrimary method: "+primary)
+    print("Other methods: {}".format(otherMethods))
+    print("Tools needed: {}\n".format(tools))
 
-def parseTools(title,prep,steps):
-    possTools = ["","","","","","","","","","","","","","","","","","","","","","","","",""]
-    return 0
+    transform(title, parsedIngreds, parsedSteps)
 
-def parseMethods(title,steps,prep):
-    possPrim = ["roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","sauté","fried","smoke","grill","steam"]
-    possSec = ["chop","grate","stir","shake","mince","crush","squeeze","dice","mix","sprinkle","melt","stuff","rub","whisk","pour","strain","roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","stir-fry","simmer","sauté","fried","stir-fried","smoke","grill","steam","barbaque"]
-    #Get primary
+def transform(title, parsedIngreds, parsedSteps):
+    while(True):
+        try:
+            choice = int(input('\nChoose a Transformation (1 = Vegetarian, 2 = Healthy, 3 = Prescatarian, anything else to quit): '))
+        except:
+            return
+        transfromedIngreds = copy.deepcopy(parsedIngreds)
+        transformedSteps = copy.deepcopy(parsedSteps)
+        if choice == 1:
+            print("\nVegetarian")
+            changes,newIngreds = translateVegetarian(parsedIngreds[3])
+        elif choice == 2:
+            print("\nHealthy")
+            changes,newIngreds = translateHealthy(parsedIngreds[3])
+        elif choice == 3:
+            print("\nPescatarian")
+            changes,newIngreds = translatePescatarian(parsedIngreds[3])
+        else:
+            return
+        print(changes)
+        print(newIngreds)
+        # use changes dict to change and print ingredients list and steps
+
+def parseMethodsandTools(title,prep,steps):
+    tools = set()
+    otherMethods = set()
+    MainMethods = cooking_dict["main-methods"]
     primary = ""
-    primaryFound = False
-    titleWords = title.lower().split()
-    for i in titleWords:
-        if i in possPrim:
-            primary = i
-            primaryFound = True
+    action_tool_dict = cooking_dict["action-tools"]
+    tool_to_pot_dict = cooking_dict["tools-to-pot"]
+    allMethods = action_tool_dict.keys()
+    allTools = cooking_dict["tools"]
+    recipe_words = " ".join(steps) + " " + " ".join(prep)
+    recipe_words = recipe_words.lower()
+    for m in allMethods:
+        if m in recipe_words:
+            otherMethods.add(m)
+            tools.add(action_tool_dict[m])
+    for t in allTools:
+        if t in recipe_words:
+            tools.add(t)
+    for m in otherMethods:
+        if m in title:
+            primary = m
+            otherMethods.discard(m)
             break
+    helperTools = set()
+    for t in tools:
+        if t in tool_to_pot_dict:
+            helperTools.add(tool_to_pot_dict[t])
+    tools = tools.union(helperTools)
+    if "skillet" in tools:
+        tools.discard("pan")
+    if primary == "":
+        for m in otherMethods:
+            if m in MainMethods:
+                primary = m
+                otherMethods.discard(m)
+                break
 
-    if not primaryFound:
-        for x in steps:
-            if "oven" in x:
-                primary = "bake"
-                primaryFound = True
+    return primary, otherMethods, tools
 
-    primaryDict = dict()
-    if not primaryFound:
-        for step in steps:
-            for possibility in possPrim:
-                if possibility in step.lower():
-                    primaryDict[possibility] = primaryDict.get(possibility, 0) + 1
-        primaryFound = True
-        primary = get_max_in_dict(primaryDict)
-
-    #Get Others
-    othersDict = dict()
-    for step in steps:
-        for possibility in possSec:
-            if possibility in step.lower():
-                print(step + " " + possibility)
-                othersDict[possibility] = othersDict.get(possibility, 0) + 1
-
-    if(not primaryFound):
-        primary = get_max_in_dict(othersDict)
-        del othersDict[primary]
-
-    for p in prep:
-        if p != "no prep":
-
-
-    print(primary)
-    print(othersDict)
-    return primary, othersDict
+# def parseMethods(title,steps,prep):
+#     possPrim = ["roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","sauté","fried","smoke","grill","steam"]
+#     possSec = ["chop","grate","stir","shake","mince","crush","squeeze","dice","mix","sprinkle","melt","stuff","rub","whisk","pour","strain","roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","stir-fry","simmer","sauté","fried","stir-fried","smoke","grill","steam","barbaque"]
+#     #Get primary
+#     primary = ""
+#     primaryFound = False
+#     titleWords = title.lower().split()
+#     for i in titleWords:
+#         if i in possPrim:
+#             primary = i
+#             primaryFound = True
+#             break
+#
+#     if not primaryFound:
+#         for x in steps:
+#             if "oven" in x:
+#                 primary = "bake"
+#                 primaryFound = True
+#
+#     primaryDict = dict()
+#     if not primaryFound:
+#         for step in steps:
+#             for possibility in possPrim:
+#                 if possibility in step.lower():
+#                     primaryDict[possibility] = primaryDict.get(possibility, 0) + 1
+#         primaryFound = True
+#         primary = get_max_in_dict(primaryDict)
+#
+#     #Get Others
+#     othersDict = dict()
+#     for step in steps:
+#         for possibility in possSec:
+#             if possibility in step.lower():
+#                 print(step + " " + possibility)
+#                 othersDict[possibility] = othersDict.get(possibility, 0) + 1
+#
+#     if(not primaryFound):
+#         primary = get_max_in_dict(othersDict)
+#         del othersDict[primary]
+#
+#     for p in prep:
+#         if p != "no prep":
+#
+#
+#     print(primary)
+#     print(othersDict)
+#     return primary, othersDict
 
 def parseSteps(steps):
     parsedSteps = []
@@ -180,36 +247,78 @@ def getItems(recipe):
                 steps.append(i.text.strip())
     return title, ingredients, steps
 
-def translateVegetarian(ingredients):
-    healthyReplacements = {"butter":"Coconut Butter", "honey":"Maple Syrup","eggs":"Bananas","milk":"Soy Milk","gelatin":"agar agar"}
-    meats = ["beef", "steak", "pork", "salmon", "tuna","halibut","tilapia","chicken","venisen","lamb","duck","sausage","eel","shrimp","lobster","crab","chorizo","scallops","clams","hotdog","pepperoni","goat","liver","caviar","calamari","goose","quail","anchovies","mussels"]
+def translateVegetarian(og_ingredients):
+    ingredients = copy.deepcopy(og_ingredients)
+    veg_Replacements = {"butter":"coconut butter", "honey":"maple syrup","eggs":"bananas","milk":"soy milk","gelatin":"agar agar"}
+    # meats = ["beef", "steak", "pork", "salmon", "tuna","halibut","tilapia","chicken","venisen","lamb","duck","sausage","eel","shrimp","lobster","crab","chorizo","scallops","clams","hotdog","pepperoni","goat","liver","caviar","calamari","goose","quail","anchovies","mussels"]
+    meats = cooking_dict["meats"] + cooking_dict["seafood"]
     translated = []
+    veg_options = cooking_dict["vegetarian"]
+    substitution_dict = {}
+    meat_count = 0
     for x in range(len(ingredients)):
+        if "broth" in ingredients[x] or "stock" in ingredients[x]:
+            substitution_dict[ingredients[x]] = "vegetable broth"
+            ingredients[x] = "vegetable broth"
+            continue
         y = ingredients[x].split(" ")
         for i in y:
-            if(i in healthyReplacements.keys()):
-                t = healthyReplacements.get(i)
+            if(i in veg_Replacements.keys()):
+                t = veg_Replacements.get(i)
+                substitution_dict[i] = t
                 ingredients[x] = t
-            if(i in meats):
-                ingredients[x] = "tofu"
-    return ingredients
+            elif(i in meats):
+                substitution_dict[i] = veg_options[meat_count]
+                ingredients[x] = veg_options[meat_count]
+                meat_count = (meat_count+1)%len(veg_options)
+    return substitution_dict, ingredients
 
-def translateHealthy(ingredients):
-    healthyReplacements = {"butter":"Coconut Oil", "honey":"Maple Syrup","eggs":"Bananas","milk":"Almond Milk","gelatin":"agar agar","rice":"quinoa", "oil":"Coconut Oil", "chips":"Popcorn", "croutons":"Almonds","flour":"Coconut Flower","sugar":"Stevia", "breadcrumbs":"Chia Seeds","iceberg":"Romaine Lettuce","ranch":"Olive Oil and Vinegar Mix","mayo":"Mustard","peanut":"Almond Butter","soda":"Tea","noodles":"Zoodles","pita":"Carrots"}
+def translatePescatarian(og_ingredients):
+    ingredients = copy.deepcopy(og_ingredients)
+    meats = cooking_dict["meats"]
+    translated = []
+    fish_options = cooking_dict["seafood"]
+    substitution_dict = {}
+    meat_count = 0
     for x in range(len(ingredients)):
+        if "broth" in ingredients[x] or "stock" in ingredients[x]:
+            substitution_dict[ingredients[x]] = "fish broth"
+            ingredients[x] = "fish broth"
+            continue
         y = ingredients[x].split(" ")
         for i in y:
-            if(i in healthyReplacements.keys()):
-                t = healthyReplacements.get(i)
-                ingredients[x] = t
+            if(i in meats):
+                substitution_dict[i] = fish_options[meat_count]
+                ingredients[x] = fish_options[meat_count]
+                meat_count = (meat_count+1)%len(fish_options)
+    return substitution_dict, ingredients
+
+def translateHealthy(og_ingredients):
+    ingredients = copy.deepcopy(og_ingredients)
+    healthyReplacements = cooking_dict["make-healthy"]
+    substitution_dict = {}
+    # healthyReplacements = {"butter":"Coconut Oil", "honey":"Maple Syrup","eggs":"Bananas","milk":"Almond Milk","gelatin":"agar agar","rice":"quinoa", "oil":"Coconut Oil", "chips":"Popcorn", "croutons":"Almonds","flour":"Coconut Flower","sugar":"Stevia", "breadcrumbs":"Chia Seeds","iceberg":"Romaine Lettuce","ranch":"Olive Oil and Vinegar Mix","mayo":"Mustard","peanut":"Almond Butter","soda":"Tea","noodles":"Zoodles","pita":"Carrots"}
+    for x in range(len(ingredients)):
+        item = ingredients[x]
+        if(item in healthyReplacements.keys()):
+            t = healthyReplacements.get(item)
+            substitution_dict[item] = t
+            ingredients[x] = t
+        else:
+            y = ingredients[x].split(" ")
+            for i in y:
+                if(i in healthyReplacements.keys()):
+                    t = healthyReplacements.get(i)
+                    substitution_dict[i] = t
+                    ingredients[x] = t
             #if(i in unhealthy):
             #    ingredients[x] = "tofu"
-    specificHealthyReplacements = {"sour cream":"Greek Yogurt","table salt":"Himalayan Salt","chocolate chips":"Cocoa Nibs","corn tortilla":"Flour Tortilla"}
-    for x in range(len(ingredients)):
-        if(x in specificHealthyReplacements.keys()):
-            t = specificHealthyReplacements.get(x)
-            ingredients[x] = t
-    return ingredients
+    # specificHealthyReplacements = {"sour cream":"Greek Yogurt","table salt":"Himalayan Salt","chocolate chips":"Cocoa Nibs","corn tortilla":"Flour Tortilla"}
+    # for x in range(len(ingredients)):
+    #     if(x in specificHealthyReplacements.keys()):
+    #         t = specificHealthyReplacements.get(x)
+    #         ingredients[x] = t
+    return substitution_dict, ingredients
 
 if __name__ == "__main__":
     main()
