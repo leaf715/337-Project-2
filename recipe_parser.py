@@ -75,7 +75,7 @@ def parseMethodsandTools(title,prep,steps):
         if t in recipe_words:
             tools.add(t)
     for m in otherMethods:
-        if m in title:
+        if m in title.lower():
             primary = m
             otherMethods.discard(m)
             break
