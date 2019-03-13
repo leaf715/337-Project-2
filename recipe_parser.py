@@ -24,12 +24,58 @@ def main():
     primary, otherMethods = parseMethods(title,parsedSteps)
     # print(steps)
 
-def parseTools(title,ingredients,steps):
+def parseTools(title,prep,steps):
+    possTools = ["","","","","","","","","","","","","","","","","","","","","","","","",""]
     return 0
 
-def parseMethods(title,steps):
-    return 0,1
-    
+def parseMethods(title,steps,prep):
+    possPrim = ["roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","sauté","fried","smoke","grill","steam"]
+    possSec = ["chop","grate","stir","shake","mince","crush","squeeze","dice","mix","sprinkle","melt","stuff","rub","whisk","pour","strain","roast","boil","broil","bake","stew","braise","toast","poach","sear","fry","stir-fry","simmer","sauté","fried","stir-fried","smoke","grill","steam","barbaque"]
+    #Get primary
+    primary = ""
+    primaryFound = False
+    titleWords = title.lower().split()
+    for i in titleWords:
+        if i in possPrim:
+            primary = i
+            primaryFound = True
+            break
+
+    if not primaryFound:
+        for x in steps:
+            if "oven" in x:
+                primary = "bake"
+                primaryFound = True
+
+    primaryDict = dict()
+    if not primaryFound:
+        for step in steps:
+            for possibility in possPrim:
+                if possibility in step.lower():
+                    primaryDict[possibility] = primaryDict.get(possibility, 0) + 1
+        primaryFound = True
+        primary = get_max_in_dict(primaryDict)
+
+    #Get Others
+    othersDict = dict()
+    for step in steps:
+        for possibility in possSec:
+            if possibility in step.lower():
+                print(step + " " + possibility)
+                othersDict[possibility] = othersDict.get(possibility, 0) + 1
+
+    if(not primaryFound):
+        primary = get_max_in_dict(othersDict)
+        del othersDict[primary]
+
+    for p in prep:
+        if p != "no prep":
+
+
+    print(primary)
+    print(othersDict)
+    return primary, othersDict
+
 def parseSteps(steps):
     parsedSteps = []
     for i in steps:
