@@ -14,7 +14,11 @@ cooking_dict = json.loads(cfg_lines)
 
 def main():
 	#Open URL
-	recipe_url = sys.argv[1]
+	try:
+		recipe_url = sys.argv[1]
+	except:
+		recipe_url = 'https://www.allrecipes.com/recipe/173906/cajun-roasted-pork-loin/?clickId=right%20rail0&internalSource=rr_feed_recipe_sb&referringId=8722%20referringContentType%3Drecipe'
+
 	with urllib.request.urlopen(recipe_url) as response:
 	#with urllib.request.urlopen('https://www.allrecipes.com/recipe/173906/cajun-roasted-pork-loin/?clickId=right%20rail0&internalSource=rr_feed_recipe_sb&referringId=8722%20referringContentType%3Drecipe') as response:
 		page = response.read()
@@ -24,7 +28,7 @@ def main():
 	print(title+"\n")
 	parsedIngreds = parseIngred(ingredients)
 	#parsedIngreds = parseIngred(ingredients)
-	print("Ingredient List (Quantity, Measurement, Description, Ingredient, Preperation):")
+	print("Ingredient List (Quantity, Measurement, Description, Ingredient, Preparation):")
 	for i in range(len(parsedIngreds[0])):
 		print("Q: " + parsedIngreds[0][i] +" M: " + parsedIngreds[1][i] +" D: " + parsedIngreds[2][i] +" I: " + parsedIngreds[3][i] +" P: " + parsedIngreds[4][i])
 	print("\nSteps:")
@@ -36,12 +40,24 @@ def main():
 	print("Other methods: {}".format(otherMethods))
 	print("Tools needed: {}\n".format(tools))
 
-	ingred_subst_dict, newIngredients, transformType = transform(title, parsedIngreds, parsedSteps)
-
-	recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subst_dict)
+	transform(title, parsedIngreds, parsedSteps)
 
 def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subst_dict):
-	print("\n" + transformType + " " + title+"\n")
+
+	print(ingred_subst_dict)
+
+	title_lower = title.lower()
+
+	for ingred in ingred_subst_dict.keys():
+		if ingred in title_lower:
+			title_lower = title_lower.replace(ingred, ingred_subst_dict[ingred])
+			title = title_lower.title()
+
+	if transformType in title:
+		title = title.replace(transformType, '')
+		print("\n" + transformType + title +"\n")
+	else:
+		print("\n" + transformType + " " + title +"\n")
 
 	finalIngreds = copy.deepcopy(parsedIngreds)
 
@@ -96,7 +112,7 @@ def transform(title, parsedIngreds, parsedSteps):
 			return
 		#print(changes)
 		#print(newIngreds)
-		return changes, newIngreds, transformationType
+		recreateRecipe(title, parsedIngreds, parsedSteps, transformationType, changes)
 		# use changes dict to change and print ingredients list and steps
 
 def parseMethodsandTools(title,prep,steps):
