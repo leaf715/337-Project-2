@@ -53,6 +53,11 @@ def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subs
 			title_lower = title_lower.replace(ingred, ingred_subst_dict[ingred])
 			title = title_lower.title()
 
+	if transformType == "Pescatarian":
+			for meat_cut in cooking_dict["meat-portions"]:
+				title_lower = title_lower.replace(meat_cut,'fillet')
+				title = title_lower.title()
+
 	if transformType in title:
 		title = title.replace(transformType, '')
 		print("\n" + transformType + title +"\n")
@@ -79,6 +84,11 @@ def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subs
 	print("\nSteps:")
 	for i in range(len(finalSteps)):
 
+		if transformType == "Pescatarian":
+			for meat_cut in cooking_dict["meat-portions"]:
+				new_step = finalSteps[i].replace(meat_cut,'fillet')
+				finalSteps[i] = new_step
+
 		for ingred in isk_len_ordered:
 			if ingred in finalSteps[i]:
 				new_step = finalSteps[i].replace(ingred, ingred_subst_dict[ingred])
@@ -91,7 +101,7 @@ def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subs
 def transform(title, parsedIngreds, parsedSteps):
 	while(True):
 		try:
-			choice = int(input('\nChoose a Transformation (1 = Vegetarian, 2 = Healthy, 3 = Prescatarian, 4 = Cajun, anything else to quit): '))
+			choice = int(input('\nChoose a Transformation (1 = Vegetarian, 2 = Healthy, 3 = Pescatarian, 4 = Cajun, anything else to quit): '))
 		except:
 			return
 		transfromedIngreds = copy.deepcopy(parsedIngreds)
@@ -353,6 +363,7 @@ def translatePescatarian(og_ingredients):
 		y = ingredients[x].split(" ")
 		for i in y:
 			if(i in meats):
+				substitution_dict[ingredients[x]] = fish_options[meat_count]
 				substitution_dict[i] = fish_options[meat_count]
 				ingredients[x] = fish_options[meat_count]
 				meat_count = (meat_count+1)%len(fish_options)
