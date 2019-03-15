@@ -36,7 +36,7 @@ def main():
 	for i in range(len(parsedSteps)):
 		print("{}. {}".format(i+1,parsedSteps[i]))
 	primary, otherMethods, tools = parseMethodsandTools(title,parsedIngreds[4],parsedSteps)
-	print("\nPrimary method: "+primary)
+	print("\nPrimary method: " + primary)
 	print("Other methods: {}".format(otherMethods))
 	print("Tools needed: {}\n".format(tools))
 
@@ -63,7 +63,9 @@ def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subs
 
 	for i in range(len(finalIngreds[3])):
 		if ingred_subst_dict.get(finalIngreds[3][i], False):
+			finalIngreds[2][i] =  ""
 			finalIngreds[3][i] =  ingred_subst_dict[finalIngreds[3][i]]
+			finalIngreds[4][i] =  ""
 
 	print("Ingredient List:")
 	for i in range(len(finalIngreds[3])):
@@ -71,10 +73,13 @@ def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subs
 
 	finalSteps = copy.deepcopy(parsedSteps)
 
+
+	isk_len_ordered = sorted(ingred_subst_dict.keys(), key=len, reverse=True)
+
 	print("\nSteps:")
 	for i in range(len(finalSteps)):
 
-		for ingred in ingred_subst_dict.keys():
+		for ingred in isk_len_ordered:
 			if ingred in finalSteps[i]:
 				new_step = finalSteps[i].replace(ingred, ingred_subst_dict[ingred])
 				finalSteps[i] = new_step
@@ -216,7 +221,7 @@ def parseSteps(steps):
 	return parsedSteps
 
 def parseIngred(ingredients):
-	descriptors = ['all-purpose','fresh','dried','extra-virgin','ground', 'boneless','organic', 'skinless']
+	descriptors = ['all-purpose','fresh','dried','extra-virgin','ground', 'boneless','organic', 'skinless', 'marinated']
 	ingreds = []
 	quantity = []
 	measurement = []
@@ -327,6 +332,7 @@ def translateVegetarian(og_ingredients):
 				substitution_dict[i] = t
 				ingredients[x] = t
 			elif(i in meats):
+				substitution_dict[ingredients[x]] = veg_options[meat_count]
 				substitution_dict[i] = veg_options[meat_count]
 				ingredients[x] = veg_options[meat_count]
 				meat_count = (meat_count+1)%len(veg_options)
