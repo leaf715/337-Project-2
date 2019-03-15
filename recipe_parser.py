@@ -1,3 +1,4 @@
+import sys
 import urllib.request
 from itertools import chain
 # pip3 install BeautifulSoup4
@@ -6,20 +7,23 @@ from bs4 import BeautifulSoup
 import random
 import json
 import copy
+import re
 cfg_file = open("cooking_info.config", "r")
 cfg_lines = cfg_file.read()
 cooking_dict = json.loads(cfg_lines)
 
 def main():
 	#Open URL
-	with urllib.request.urlopen('https://www.allrecipes.com/recipe/173906/cajun-roasted-pork-loin/?clickId=right%20rail0&internalSource=rr_feed_recipe_sb&referringId=8722%20referringContentType%3Drecipe') as response:
+	recipe_url = sys.argv[1]
+	with urllib.request.urlopen(recipe_url) as response:
+	#with urllib.request.urlopen('https://www.allrecipes.com/recipe/173906/cajun-roasted-pork-loin/?clickId=right%20rail0&internalSource=rr_feed_recipe_sb&referringId=8722%20referringContentType%3Drecipe') as response:
 		page = response.read()
 	recipe = BeautifulSoup(page, 'html.parser')
 
 	title, ingredients, steps = getItems(recipe)
 	print(title+"\n")
 	parsedIngreds = parseIngred(ingredients)
-	parsedIngreds = parseIngred(ingredients)
+	#parsedIngreds = parseIngred(ingredients)
 	print("Ingredient List (Quantity, Measurement, Description, Ingredient, Preperation):")
 	for i in range(len(parsedIngreds[0])):
 		print("Q: " + parsedIngreds[0][i] +" M: " + parsedIngreds[1][i] +" D: " + parsedIngreds[2][i] +" I: " + parsedIngreds[3][i] +" P: " + parsedIngreds[4][i])
@@ -32,7 +36,36 @@ def main():
 	print("Other methods: {}".format(otherMethods))
 	print("Tools needed: {}\n".format(tools))
 
-	transform(title, parsedIngreds, parsedSteps)
+	ingred_subst_dict, newIngredients, transformType = transform(title, parsedIngreds, parsedSteps)
+
+	recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subst_dict)
+
+def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subst_dict):
+	print("\n" + transformType + " " + title+"\n")
+
+	finalIngreds = copy.deepcopy(parsedIngreds)
+
+	for i in range(len(finalIngreds[3])):
+		if ingred_subst_dict.get(finalIngreds[3][i], False):
+			finalIngreds[3][i] =  ingred_subst_dict[finalIngreds[3][i]]
+
+	print("Ingredient List:")
+	for i in range(len(finalIngreds[3])):
+		print(finalIngreds[0][i] + " " + finalIngreds[1][i] + " " + finalIngreds[2][i] + " " + finalIngreds[3][i] + " " + finalIngreds[4][i])
+
+	finalSteps = copy.deepcopy(parsedSteps)
+
+	print("\nSteps:")
+	for i in range(len(finalSteps)):
+
+		for ingred in ingred_subst_dict.keys():
+			if ingred in finalSteps[i]:
+				new_step = finalSteps[i].replace(ingred, ingred_subst_dict[ingred])
+				finalSteps[i] = new_step
+
+		print("{}. {}".format(i+1,finalSteps[i]))
+
+	print("\nEnjoy!")
 
 def transform(title, parsedIngreds, parsedSteps):
 	while(True):
@@ -42,22 +75,28 @@ def transform(title, parsedIngreds, parsedSteps):
 			return
 		transfromedIngreds = copy.deepcopy(parsedIngreds)
 		transformedSteps = copy.deepcopy(parsedSteps)
+		transformationType = ""
 		if choice == 1:
-			print("\nVegetarian")
+			#print("\nVegetarian")
 			changes,newIngreds = translateVegetarian(parsedIngreds[3])
+			transformationType = "Vegetarian"
 		elif choice == 2:
-			print("\nHealthy")
+			#print("\nHealthy")
 			changes,newIngreds = translateHealthy(parsedIngreds[3])
+			transformationType = "Healthy"
 		elif choice == 3:
-			print("\nPescatarian")
+			#print("\nPescatarian")
 			changes,newIngreds = translatePescatarian(parsedIngreds[3])
+			transformationType = "Pescatarian"
 		elif choice == 4:
-			print("\nCajun")
+			#print("\nCajun")
 			changes,newIngreds = translateCajun(parsedIngreds[3])
+			transformationType = "Cajun"
 		else:
 			return
-		print(changes)
-		print(newIngreds)
+		#print(changes)
+		#print(newIngreds)
+		return changes, newIngreds, transformationType
 		# use changes dict to change and print ingredients list and steps
 
 def parseMethodsandTools(title,prep,steps):
@@ -161,7 +200,7 @@ def parseSteps(steps):
 	return parsedSteps
 
 def parseIngred(ingredients):
-	descriptors = ['all-purpose','fresh','dried','extra-virgin','ground', 'boneless','organic']
+	descriptors = ['all-purpose','fresh','dried','extra-virgin','ground', 'boneless','organic', 'skinless']
 	ingreds = []
 	quantity = []
 	measurement = []
