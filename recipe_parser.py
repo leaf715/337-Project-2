@@ -44,7 +44,7 @@ def main():
 
 def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subst_dict):
 
-	print(ingred_subst_dict)
+	#print(ingred_subst_dict)
 
 	title_lower = title.lower()
 
