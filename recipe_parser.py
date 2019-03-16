@@ -17,7 +17,7 @@ def main():
 	try:
 		recipe_url = sys.argv[1]
 	except:
-		recipe_url = 'https://www.allrecipes.com/recipe/173906/cajun-roasted-pork-loin/?clickId=right%20rail0&internalSource=rr_feed_recipe_sb&referringId=8722%20referringContentType%3Drecipe'
+		recipe_url = "https://www.allrecipes.com/recipe/234534/beef-and-guinness-stew/"
 
 	with urllib.request.urlopen(recipe_url) as response:
 	#with urllib.request.urlopen('https://www.allrecipes.com/recipe/173906/cajun-roasted-pork-loin/?clickId=right%20rail0&internalSource=rr_feed_recipe_sb&referringId=8722%20referringContentType%3Drecipe') as response:
@@ -37,8 +37,8 @@ def main():
 		print("{}. {}".format(i+1,parsedSteps[i]))
 	primary, otherMethods, tools = parseMethodsandTools(title,parsedIngreds[4],parsedSteps)
 	print("\nPrimary method: " + primary)
-	print("Other methods: {}".format(otherMethods))
-	print("Tools needed: {}\n".format(tools))
+	print("Other methods: %s" % ", ".join(otherMethods))
+	print("Tools needed: %s\n" % ", ".join(tools))
 
 	transform(title, parsedIngreds, parsedSteps)
 
@@ -56,6 +56,10 @@ def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subs
 	if transformType == "Pescatarian":
 			for meat_cut in cooking_dict["meat-portions"]:
 				title_lower = title_lower.replace(meat_cut,'fillet')
+				title = title_lower.title()
+	else:
+		for meat_cut in cooking_dict["meat-portions"]:
+				title_lower = title_lower.replace(meat_cut,'')
 				title = title_lower.title()
 
 	if transformType in title:
@@ -84,6 +88,10 @@ def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subs
 	print("\nSteps:")
 	for i in range(len(finalSteps)):
 
+		if transformType == "Vegetarian":
+			new_step = finalSteps[i].replace('meat','meat substitute')
+			finalSteps[i] = new_step
+
 		if transformType == "Pescatarian":
 			for meat_cut in cooking_dict["meat-portions"]:
 				new_step = finalSteps[i].replace(meat_cut,'fillet')
@@ -91,6 +99,7 @@ def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subs
 
 		for ingred in isk_len_ordered:
 			if ingred in finalSteps[i]:
+				#print(ingred)
 				new_step = finalSteps[i].replace(ingred, ingred_subst_dict[ingred])
 				finalSteps[i] = new_step
 
@@ -231,7 +240,9 @@ def parseSteps(steps):
 	return parsedSteps
 
 def parseIngred(ingredients):
-	descriptors = ['all-purpose','fresh','dried','extra-virgin','ground', 'boneless','organic', 'skinless', 'marinated']
+	descriptors = ['all-purpose','fresh','dried','extra-virgin','ground','boneless',
+					'organic','skinless','marinated','corned','pickled','fermented',
+					'skinless,','marinated,','boneless,']
 	ingreds = []
 	quantity = []
 	measurement = []
@@ -385,6 +396,7 @@ def translateHealthy(og_ingredients):
 			for i in y:
 				if(i in healthyReplacements.keys()):
 					t = healthyReplacements.get(i)
+					substitution_dict[ingredients[x]] = t
 					substitution_dict[i] = t
 					ingredients[x] = t
 			#if(i in unhealthy):
@@ -445,11 +457,13 @@ def translateCajun(og_ingredients):
 				elif(i in meats and ("broth" not in y and "stock" not in y and "base" not in y)):
 					chosen_ingredient = "chicken"
 					substitution_dict[ix] = chosen_ingredient
+					substitution_dict[i] = chosen_ingredient
 					ingredients[x] = chosen_ingredient
 					break
 				elif(i in fish and ("broth" not in y and "stock" not in y and "base" not in y)):
 					chosen_ingredient = random.choice(cajun_fish)
 					substitution_dict[ix] = chosen_ingredient
+					substitution_dict[i] = chosen_ingredient
 					ingredients[x] = chosen_ingredient
 					break
 				elif(i in replaceable_spices):
