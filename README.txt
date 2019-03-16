@@ -1,5 +1,7 @@
 EECS 337 Project 2
 
+Git Repo: https://github.com/leaf715/337-Project-2
+
 Students:
 Brennan Adler
 Joe Chookaszian
