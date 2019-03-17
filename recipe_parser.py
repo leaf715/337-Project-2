@@ -35,12 +35,56 @@ def main():
 	parsedSteps = parseSteps(steps)
 	for i in range(len(parsedSteps)):
 		print("{}. {}".format(i+1,parsedSteps[i]))
+		time, methods, tools, ingredients = stepDetails(parsedSteps[i],parsedIngreds[3])
+		print("Time: {} Methods: {} Tools: {} Ingredients: {}".format(time,methods,tools,ingredients))
 	primary, otherMethods, tools = parseMethodsandTools(title,parsedIngreds[4],parsedSteps)
 	print("\nPrimary method: " + primary)
 	print("Other methods: %s" % ", ".join(otherMethods))
 	print("Tools needed: %s\n" % ", ".join(tools))
 
 	transform(title, parsedIngreds, parsedSteps)
+
+def stepDetails(step, allIngreds):
+	times = []
+	methods = []
+	tools = []
+	ingredients = set()
+	step = step.lower()
+	words = step.split(" ")
+	timeUnits = cooking_dict["time-units"]
+	stopwords = cooking_dict["stopwords"]
+	for word in words:
+		if word in timeUnits:
+			time = word
+			i = words.index(word)
+			if i-1 > 0:
+				if words[i-1].isdigit():
+					time = words[i-1] + " " + time
+			if i-2 > 0:
+				if words[i-2] == "to":
+					if i-3 > 0:
+						if words[i-3].isdigit():
+							time = words[i-3] + " " + words[i-2] + " " + time
+			times.append(time)
+	primary, methods, tools = parseMethodsandTools("",[],[step])
+	methods.add(primary)
+	methods.discard("")
+	for word in words:
+		if word not in stopwords:
+			if word[-1] == 's':
+				word = word[:-1]
+			for ingred in allIngreds:
+				if word in ingred:
+					ingredients.add(ingred)
+	if len(methods) == 0:
+		methods = None
+	if len(tools) == 0:
+		tools = None
+	if len(times) == 0:
+		times = None
+	if len(ingredients) == 0:
+		ingredients = None
+	return times, methods, tools, ingredients
 
 def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subst_dict):
 
