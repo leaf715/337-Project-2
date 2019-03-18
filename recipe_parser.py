@@ -36,7 +36,7 @@ def main():
 	for i in range(len(parsedSteps)):
 		print("{}. {}".format(i+1,parsedSteps[i]))
 		time, methods, tools, ingredients = stepDetails(parsedSteps[i],parsedIngreds[3])
-		print("Time: {} Methods: {} Tools: {} Ingredients: {}".format(time,methods,tools,ingredients))
+		print("Time: {}\nMethods: {}\nTools: {}\nIngredients: {}".format(", ".join(time),", ".join(methods),", ".join(tools),", ".join(ingredients)))
 	primary, otherMethods, tools = parseMethodsandTools(title,parsedIngreds[4],parsedSteps)
 	print("\nPrimary method: " + primary)
 	print("Other methods: %s" % ", ".join(otherMethods))
@@ -77,14 +77,14 @@ def stepDetails(step, allIngreds):
 				if word in ingred:
 					ingredients.add(ingred)
 	if len(methods) == 0:
-		methods = None
+		methods = ["None"]
 	if len(tools) == 0:
-		tools = None
+		tools = ["None"]
 	if len(times) == 0:
-		times = None
+		times = ["None"]
 	if len(ingredients) == 0:
-		ingredients = None
-	return times, methods, tools, ingredients
+		ingredients = ["None"]
+	return times, list(methods), list(tools), list(ingredients)
 
 def recreateRecipe(title, parsedIngreds, parsedSteps, transformType, ingred_subst_dict):
 
